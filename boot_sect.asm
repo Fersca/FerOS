@@ -76,7 +76,7 @@ jmp $ 				; Jump to the current address forever.
 ;;;;;;;;;;;;; Functions
 %include "print.asm"
 %include "print_hex.asm"
-%include "disk_load2.asm"
+%include "disk_loal.asm"
 
 ;;;;;;;;;;;;; Data
 
