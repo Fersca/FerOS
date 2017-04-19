@@ -25,9 +25,9 @@ mov bx, HELLO_MSG 		; Use BX as a parameter to our function, so
 call print_string 		; we can specify the address of a string.
 call print_string_nl		; print line
 
-mov bx, GOODBYE_MSG
-call print_string
-call print_string_nl
+;mov bx, GOODBYE_MSG
+;call print_string
+;call print_string_nl
 
 mov dx, 0x12fe			; Imprime en hexadecimal como ejemplo
 call print_hex
@@ -66,6 +66,8 @@ mov bx, GOODBYE_MSG
 call print_string
 call print_string_nl
 
+call switch_to_pm 		; Note that we never return from here.
+
 ;;;;;;;;;; Infinite Jump
 
 jmp $ 				; Jump to the current address forever.
@@ -75,23 +77,37 @@ jmp $ 				; Jump to the current address forever.
 
 ;;;;;;;;;;;;; Functions
 %include "print.asm"
-%include "print_hex.asm"
+%include "print_hex.asm"	; Lo saco porque no tengo espacio para poner el magic number
 %include "disk_load.asm"
+%include "gdt.asm"
+%include "print_string_pm.asm"
+%include "switch_to_pm.asm"
 
-;;;;;;;;;;;;; Data
+;;;;;;;;;;;;; Data 16 bits
 
 HELLO_MSG:
-db 'Iniciando OS... ! ' , 0 	; <-- The zero on the end tells our routin
-				; when to stop printing characters.
+db 'Iniciando... ' , 0          ; <-- The zero on the end tells our routin
+                                ; when to stop printing characters.
 GOODBYE_MSG:
-db 'Fin. ', 0
+db 'Saliendo del Modo Real', 0
 
 BOOT_DRIVE_MSG:
-db 'Boot Drive Original: ', 0
+db 'Boot Drive: ', 0
 
 ;;;;;;;;;;;; Global variables
-BOOT_DRIVE: 
+BOOT_DRIVE:
 db 0
+
+[bits 32]
+; This is where we arrive after switching to and initialising protected mode.
+BEGIN_PM:
+mov ebx, MSG_PROT_MODE
+call print_string_pm		; Use our 32 - bit print routine.
+jmp $ 				; Hang.
+
+;;;;;;;;;;;;; Data 32 bits
+
+MSG_PROT_MODE db "Ready 32 - bit", 0
 
 ;;;;;;;;;;; PADDING
 
